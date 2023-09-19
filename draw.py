@@ -98,11 +98,8 @@ class Draw:
             if spot.full:
                 py.draw.circle(self.screen, BLACK, spot.pos, spot.size + 3, 3)
                 
-
     def blit_numbers(self):
         py.draw.rect(self.screen,WHITE,(0,0,SCREEN_WIDTH,SCREEN_HEIGHT/13))
-        self.screen.blit(self.font.render(str(int(self.player.money)),True,self.player.color),(20,20))
-        self.screen.blit(self.small_font.render(f"{self.player.production_per_second:.0f}", True, (205, 204, 0)), (23, 60))
         for i in range(self.board.player_count):
             self.screen.blit(self.small_font.render(str(int(self.players[i].count)),True,self.players[i].color),(SCREEN_WIDTH/3 + i*150,20))
         
@@ -120,45 +117,14 @@ class Draw:
         elif self.player.eliminated:
             self.screen.blit(self.font.render("ELIMINATED",True,self.player.color),(SCREEN_WIDTH - 300,20))
         else:
-            self.screen.blit(self.small_font.render("A to Edge Build",True,self.player.color),(SCREEN_WIDTH - 300,20))
-            self.screen.blit(self.small_font.render("X to Forfeit",True,self.player.color),(SCREEN_WIDTH - 300,60))
-
-        
+            self.screen.blit(self.small_font.render("X to Forfeit",True,self.player.color),(SCREEN_WIDTH - 300,20))
 
     def wipe(self):
         self.screen.fill(WHITE)
 
     def highlight_node(self):
         if self.player.highlighted_node is not None:
-            if self.player.considering_edge:
-                py.draw.circle(self.screen, DARK_YELLOW, self.player.highlighted_node.pos, self.player.highlighted_node.size + 5,2)
-            else:
-                py.draw.circle(self.screen, self.player.color, self.player.highlighted_node.pos, self.player.highlighted_node.size + 5,2)
-
-    def edge_build(self, end):
-        start=self.player.new_edge_start.pos
-        triangle_size=5
-        spacing=9
-        dx = end[0] - start[0]
-        dy = end[1] - start[1]
-        magnitude = math.sqrt(dx*dx + dy*dy)
-        
-        dx /= magnitude
-        dy /= magnitude
-        
-        num_triangles = int((magnitude-10) / spacing)
-        
-        length_factor = 1.5
-        
-        for i in range(1, num_triangles + 1):
-            pos = (start[0] + i * spacing * dx +5*dx, start[1] + i * spacing * dy+5*dy)
-            
-            point1 = pos
-            point2 = (pos[0] - length_factor * triangle_size * dx + triangle_size * dy, pos[1] - length_factor * triangle_size * dy - triangle_size * dx)
-            point3 = (pos[0] - length_factor * triangle_size * dx - triangle_size * dy, pos[1] - length_factor * triangle_size * dy + triangle_size * dx)
-      
-            py.draw.polygon(self.screen, YELLOW, [point1, point2, point3])
-            py.draw.lines(self.screen, BLACK, True, [point1, point2, point3]) 
+            py.draw.circle(self.screen, self.player.color, self.player.highlighted_node.pos, self.player.highlighted_node.size + 5,2)
 
     def blit(self, mouse_pos):
         self.screen.fill(WHITE)
@@ -166,6 +132,4 @@ class Draw:
         self.blit_edges()
         self.blit_numbers()
         self.highlight_node()
-        if self.player.new_edge_started():
-            self.edge_build(mouse_pos)
         py.display.update() 
