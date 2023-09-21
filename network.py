@@ -5,9 +5,8 @@ from constants import *
 class Network:
     def __init__(self, action_callback, tick_callback, eliminate_callback, reset_game_callback):
         self.client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.server = NETWORK
+        self.server = None
         self.port = 5555
-        self.addr = (self.server, self.port)
         self.action_callback = action_callback
         self.tick_callback = tick_callback
         self.eliminate_callback = eliminate_callback
@@ -23,6 +22,8 @@ class Network:
                 break
 
     def get_user_input_for_game(self):
+        self.server = input("Input Server IP Address: ")
+        self.addr = (self.server, self.port)
         while True:
             user_input = input("Do you want to HOST or JOIN a game? (HOST/JOIN): ").strip().upper()
             if user_input in ["HOST", "JOIN"]:

@@ -50,6 +50,7 @@ class Board:
             x, y = node.pos
             new_x = 25 + (x - far_left_x) * scaling_factor
             node.pos = (new_x, y)
+            node.set_pos_per()
 
     def update(self):
 

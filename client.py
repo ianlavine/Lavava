@@ -66,13 +66,18 @@ class Client:
     def main_loop(self):
         while True:
 
-            if not self.player.eliminated:
+            for event in p.event.get():
+                self.d.wipe()
+        
+                if event.type == p.QUIT:
+                    self.running = False
 
-                for event in p.event.get():
-                    self.d.wipe()
-            
-                    if event.type == p.QUIT:
-                        self.running = False
+                elif event.type == p.VIDEORESIZE:
+                    width, height = event.w, event.h
+                    for node in self.board.nodes:
+                        node.relocate(width, height)
+
+                if not self.player.eliminated:
 
                     self.keydown(event)
 

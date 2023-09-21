@@ -29,6 +29,9 @@ class ResourceNode(Node):
     def grow(self):
         pass
 
+    def left_click(self, clicker):
+        pass
+
     def delivery(self, amount, player):
         if not self.popped:
             self.bubble_owner = player

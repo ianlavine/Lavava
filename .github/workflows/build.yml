@@ -1,0 +1,35 @@
+on:
+  push:
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [macos-latest, windows-latest]
+    steps:
+    - uses: actions/checkout@v2
+    - uses: actions/setup-python@v2
+      with:
+        python-version: 3.9
+
+    - run: pip install -r requirements.txt pyinstaller
+    - run: |
+        if [[ "${{ matrix.os }}" == "macos-latest" ]]; then
+          pyinstaller --onefile client.py
+          pyinstaller --onefile server.py
+        else
+          pyinstaller client.py
+          pyinstaller server.py
+        fi
+      shell: bash
+    - run: ls -R dist/
+      shell: bash
+    - uses: actions/upload-artifact@v2
+      with:
+        name: client-executable-${{ matrix.os }}
+        path: dist/client*
+    - uses: actions/upload-artifact@v2
+      with:
+        name: server-executable-${{ matrix.os }}
+        path: dist/server*

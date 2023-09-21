@@ -7,7 +7,7 @@ from constants import *
 class Draw:
     def __init__(self, board, player_num, players):
         self.set_data(board, player_num, players)
-        self.screen = py.display.set_mode(size)
+        self.screen = py.display.set_mode(size, py.RESIZABLE)
         self.font = py.font.Font(None, 60)
         self.small_font = py.font.Font(None, 45)
         self.highlighted_node = None

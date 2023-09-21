@@ -116,5 +116,12 @@ class Node:
     def full(self):
         return self.value >= GROWTH_STOP
 
+    def set_pos_per(self):
+        self.pos_x_per = self.pos[0] / SCREEN_WIDTH
+        self.pos_y_per = self.pos[1] / SCREEN_HEIGHT
+
+    def relocate(self, width, height):
+        self.pos = (self.pos_x_per * width, self.pos_y_per * height)
+
     def owned_and_alive(self):
         return self.owner != None and not self.owner.eliminated
