@@ -15,6 +15,11 @@ class Board:
         self.highlighted = None
         self.highlighted_color = None
 
+    def rage(self, player):
+        for edge in self.edges:
+            if edge.can_be_owned_by(player):
+                edge.enrage()
+
     def reset(self, nodes, edges):
         self.nodes = nodes
         self.edges = edges
@@ -24,8 +29,7 @@ class Board:
         self.extra_edges = 2
 
     def check_highlight(self, position, ability_manager):
-        ability = ability_manager.ability
-        self.highlighted_color = ability_manager.ability.color
+        self.highlighted_color = ability_manager.box.color
         self.highlighted = self.hover(position, ability_manager)
 
     def validate(self, ability_manager, id):

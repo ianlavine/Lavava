@@ -84,15 +84,14 @@ class Draw:
 
     def draw_buttons(self):
         y_position = int(ABILITY_START_HEIGHT * self.height)
-        for btn_data in self.abilities.values():
-            btn_value = getattr(self.ability_manager, MODE['ability_display'])[btn_data.key]
-            selected = self.ability_manager.mode == btn_data.key or (self.ability_manager.mode == 'default' and btn_data.key == 2)
+        for btn in self.abilities.values():
+            btn_box = btn.box
+            selected = self.ability_manager.mode == btn.key or (self.ability_manager.mode == 'default' and btn.key == 2)
             loading = False
             if CONTEXT['mode'] == 2:
-                btn_value = self.ability_manager.remaining_usage[btn_data.key]
-                if self.ability_manager.full(btn_data.key):
-                    loading = False
-            self.draw_button(btn_data.shape, btn_data.color, btn_data.name, btn_value, btn_data.letter, (self.width -  int(ABILITY_GAP * self.height), y_position), selected, loading)
+                if not self.ability_manager.full(btn.key):
+                    loading = True
+            self.draw_button(btn_box.shape, btn_box.color, btn_box.name, btn_box.display_num, btn_box.letter, (self.width -  int(ABILITY_GAP * self.height), y_position), selected, loading)
             y_position += int(ABILITY_GAP * self.height) # Vertical gap between buttons
 
     def draw_star(self, position, size, color, filled=True):
@@ -169,7 +168,10 @@ class Draw:
             point3 = (pos[0] - length_factor * triangle_size * dx - triangle_size * dy, pos[1] - length_factor * triangle_size * dy + triangle_size * dx)
 
             if edge.flowing:
-                py.draw.polygon(self.screen, color, [point1, point2, point3])         
+                if edge.currently_raging:
+                    py.draw.polygon(self.screen, PURPLE, [point1, point2, point3])
+                else:
+                    py.draw.polygon(self.screen, color, [point1, point2, point3])
             else:
                 py.draw.lines(self.screen, color, True, [point1, point2, point3])
 
@@ -193,11 +195,12 @@ class Draw:
         for i in range(1, num_circles):
             pos = (start[0] + i * spacing * dx+5*dx, start[1] + i * spacing * dy+5*dy)
             if edge.flowing:
-                py.draw.circle(self.screen, color, (int(pos[0]), int(pos[1])), circle_radius)
+                if edge.currently_raging:
+                    py.draw.circle(self.screen, PURPLE, (int(pos[0]), int(pos[1])), circle_radius)
+                else:
+                    py.draw.circle(self.screen, color, (int(pos[0]), int(pos[1])), circle_radius)
             else:
                 py.draw.circle(self.screen, color, (int(pos[0]), int(pos[1])), circle_radius, 1)
-            # if edge.poisoned:
-            #     py.draw.circle(self.screen, PURPLE, (int(pos[0]), int(pos[1])), circle_radius, 1)
 
         if self.board.highlighted == edge:
             self.edge_highlight(dy, dx, magnitude, length_factor, start, end, spacing)
@@ -294,14 +297,17 @@ class Draw:
         else:
             self.screen.blit(self.small_font.render("X to Forfeit",True,CONTEXT['main_player'].color),(self.width - 450,20))
 
+    def blit_waiting(self):
+        self.screen.blit(self.small_font.render("Waiting for other Players to Choose Abilities",True,GREEN),(self.width // 7,20))
+
     def wipe(self):
         self.screen.fill(WHITE)
             
     def edge_build(self, end, type):
         if type == 1:
-            start=self.abilities[BRIDGE_CODE].first_node.pos
+            start=self.abilities[BRIDGE_CODE].clicks[0].pos
         else:
-            start=self.abilities[D_BRIDGE_CODE].first_node.pos
+            start=self.abilities[D_BRIDGE_CODE].clicks[0].pos
         triangle_size=5
         spacing=9
         dx = end[0] - start[0]
@@ -334,16 +340,19 @@ class Draw:
                 self.draw_star(spot.pos, spot.size * 2, PINK)
                 self.draw_star(spot.pos, spot.size * 2, BLACK, False)
 
-    def blit(self, mouse_pos):
+    def blit(self, mouse_pos, waiting=False):
         self.screen.fill(WHITE)
         self.blit_nodes()
         self.blit_edges()
         self.blit_capital_stars()
-        self.blit_numbers()
+        if waiting:
+            self.blit_waiting()
+        else:
+            self.blit_numbers()
         self.draw_buttons()
-        if BRIDGE_CODE in self.abilities and self.abilities[BRIDGE_CODE].first_node is not None:
+        if BRIDGE_CODE in self.abilities and len(self.abilities[BRIDGE_CODE].clicks) >= 1:
             self.edge_build(mouse_pos, 1)
-        if D_BRIDGE_CODE in self.abilities and self.abilities[D_BRIDGE_CODE].first_node is not None:
+        if D_BRIDGE_CODE in self.abilities and len(self.abilities[D_BRIDGE_CODE].clicks) >= 1:
             self.edge_build(mouse_pos, 2)
         py.display.update() 
 

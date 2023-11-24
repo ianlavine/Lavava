@@ -1,5 +1,5 @@
 from nodeState import *
-from constants import MODE, PORT_NODE_START_PORTS, CONTEXT
+from constants import MODE, CONTEXT
 
 def set_node_state(self, state_name, data=None):
     if state_name == 'default':
@@ -11,6 +11,6 @@ def set_node_state(self, state_name, data=None):
         return CapitalStateType(self)
     elif state_name == "mine":
         if data == True and CONTEXT['mode'] == 3:
-            self.port_count = PORT_NODE_START_PORTS
+            self.port_count = 3
         return MineState(self, data)
     

@@ -69,11 +69,10 @@ def starter_nodes(node_list):
 
 def starter_port_nodes(node_list):
     nodes = []
+    port_list_count = len(PORT_LAYOUT)
     for index, node in enumerate(node_list):
-        if index % PORT_NODE_1_IN == 0:
-            nodes.append(PortNode(node[0], node[1], PORT_NODE_START_PORTS))
-        else:
-            nodes.append(PortNode(node[0], node[1], 0))
+        port_list_index = index % port_list_count
+        nodes.append(PortNode(node[0], node[1], PORT_LAYOUT[port_list_index]))
     return nodes
 
 def starter_mines(nodes):
