@@ -22,8 +22,7 @@ class Node:
         self.value = 0
         self.owner = None
         self.item_type = NODE
-        self.incoming = set()
-        self.outgoing = set()
+        self.edges = set()
         self.id = id
         self.pos = pos
         self.type = NODE
@@ -37,11 +36,8 @@ class Node:
     def __str__(self):
         return str(self.id)
 
-    def new_edge(self, edge, dir, initial):
-        if dir == "incoming":
-            self.incoming.add(edge)
-        else:
-            self.outgoing.add(edge)
+    def new_edge(self, edge, initial):
+        self.edges.add(edge)
 
     def set_state(self, status_name, data=None):
         if status_name in STATE_NAMES:
@@ -116,9 +112,7 @@ class Node:
                 edge.popped = False
 
     def check_edge_stati(self):
-        for edge in self.incoming:
-            edge.check_status()
-        for edge in self.outgoing:
+        for edge in self.edges:
             edge.check_status()
 
     def set_pos_per(self):
@@ -134,8 +128,7 @@ class Node:
     def spread_poison(self):
         for edge in self.outgoing:
             if (
-                edge.to_node != self
-                and edge.on
+                edge.on
                 and not edge.contested
                 and edge.to_node.state_name == "default"
             ):
@@ -212,7 +205,7 @@ class Node:
             self.set_default_state()
 
     def absorbing(self):
-        for edge in self.current_incoming:
+        for edge in self.incoming:
             if edge.flowing:
                 return True
         return False
@@ -228,12 +221,12 @@ class Node:
         return self.value >= self.state.full_size
 
     @property
-    def edges(self):
-        return self.incoming | self.outgoing
+    def outgoing(self):
+        return {edge for edge in self.edges if edge.from_node == self}
 
     @property
-    def current_incoming(self):
-        return [edge for edge in self.incoming if edge.to_node == self]
+    def incoming(self):
+        return {edge for edge in self.edges if edge.to_node == self}
 
     @property
     def neighbors(self):
@@ -274,10 +267,10 @@ class PortNode(Node):
     def acceptBridge(self):
         return self.port_count > 0 and 'burn' not in self.effects and self.state.acceptBridge
 
-    def new_edge(self, edge, dir, initial):
+    def new_edge(self, edge, initial):
         if not initial and edge not in self.edges:
             self.port_count -= 1
-        super().new_edge(edge, dir, initial)
+        super().new_edge(edge, initial)
 
     def lose_ports(self):
         self.port_count = 0
@@ -330,7 +323,7 @@ class PortNode(Node):
         Calculates and returns a list of angles for all edges connected to this node.
         """
         angles = []
-        for edge in self.outgoing.union(self.incoming):
+        for edge in self.edges:
             other_node = edge.opposite(self)
             dx = other_node.pos[0] - self.pos[0]
             dy = other_node.pos[1] - self.pos[1]

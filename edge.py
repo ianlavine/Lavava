@@ -23,8 +23,8 @@ class Edge:
         return str(self.id)
 
     def update_nodes(self, initial):
-        self.to_node.new_edge(self, "incoming", initial)
-        self.from_node.new_edge(self, "outgoing", initial)
+        self.to_node.new_edge(self, initial)
+        self.from_node.new_edge(self, initial)
 
     def click(self, clicker, button):
         if button == 1 and self.controlled_by(clicker):

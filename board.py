@@ -255,7 +255,7 @@ class Board:
 
     def remove_node(self, node):
         node.owner.count -= 1
-        for edge in node.outgoing | node.incoming:
+        for edge in node.edges:
             opp = edge.opposite(node)
             opp.incoming.discard(edge)
             opp.outgoing.discard(edge)
