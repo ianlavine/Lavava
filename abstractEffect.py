@@ -8,7 +8,7 @@ class AbstractEffect(ABC):
 
     def count(self):
         self.counter -= 1
-        return self.counter > 0
+        return self.counter > 0 
 
     def complete(self):
         pass
@@ -16,8 +16,9 @@ class AbstractEffect(ABC):
 
 class AbstractNodeEffect(AbstractEffect):
 
-    def __init__(self, expiry_time, effect_type, can_spread, spread_criteria=None):
+    def __init__(self, reset_on_capture, expiry_time, effect_type, can_spread, spread_criteria=None):
         super().__init__(expiry_time)
+        self.reset_on_capture = reset_on_capture
         self.effect_type = effect_type
         self.can_spread_func = can_spread
         self.spread_criteria_func = spread_criteria

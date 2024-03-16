@@ -5,11 +5,9 @@ from constants import (
     MINE_DICT,
     GROWTH_STOP,
     GREY,
-    BLACK,
     TRANSFER_RATE,
     STANDARD_SWAP_STATUS,
     BELOW_SWAP_STATUS,
-    ZOMBIE_FULL_SIZE,
 )
 from abc import ABC, abstractmethod
 import math

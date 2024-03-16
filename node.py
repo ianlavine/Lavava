@@ -26,6 +26,7 @@ class Node:
         self.id = id
         self.pos = pos
         self.type = NODE
+        self.state_name = None
         self.effects = {}
         self.expel_multiplier = 1
         self.intake_multiplier = 1
@@ -40,6 +41,12 @@ class Node:
         self.edges.add(edge)
 
     def set_state(self, status_name, data=None):
+        if self.state_name == status_name:
+            print("Already in this state")
+            return
+        if status_name in self.effects:
+            print("Already has this effect")
+            return
         if status_name in STATE_NAMES:
             self.state = self.new_state(status_name, data)
             self.state_name = status_name
@@ -203,6 +210,10 @@ class Node:
         self.expand()
         if self.state.reset_on_capture:
             self.set_default_state()
+        for effect in list(self.effects):
+            if self.effects[effect].reset_on_capture:
+                self.effects[effect].complete()
+                del self.effects[effect]
 
     def absorbing(self):
         for edge in self.incoming:
