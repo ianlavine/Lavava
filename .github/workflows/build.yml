@@ -2,28 +2,70 @@ on:
   push:
 
 jobs:
-  build:
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        os: [macos-latest, windows-latest]
+  build-macos-x86_64:
+    runs-on: macos-latest
     steps:
     - uses: actions/checkout@v2
     - uses: actions/setup-python@v2
       with:
-        python-version: 3.9
+        python-version: '3.9'
 
-    - run: pip install -r requirements.txt pyinstaller
-    - run: |
-        if [[ "${{ matrix.os }}" == "macos-latest" ]]; then
-          pyinstaller --onefile game.py
-        else
-          pyinstaller --onefile game.py
-        fi
-      shell: bash
-    - run: ls -R dist/
-      shell: bash
+    - name: Install dependencies
+      run: pip install -r requirements.txt pyinstaller
+
+    - name: Build for macOS x86_64
+      run: pyinstaller --onefile game.py --name game_macos_x86_64
+
+    - name: List files
+      run: ls -R dist/
+
     - uses: actions/upload-artifact@v2
       with:
-        name: game-executable-${{ matrix.os }}
-        path: dist/game*
+        name: game-executable-macos-x86_64
+        path: dist/game_macos_x86_64
+
+  build-macos-arm64:
+    runs-on: macos-latest
+    steps:
+    - uses: actions/checkout@v2
+    - uses: actions/setup-python@v2
+      with:
+        python-version: '3.9'
+
+    - name: Install dependencies
+      run: pip install -r requirements.txt pyinstaller
+
+    - name: Build for macOS arm64
+      run: pyinstaller --onefile game.py --name game_macos_arm64
+      env:
+        ARCHFLAGS: "-arch arm64"
+
+    - name: List files
+      run: ls -R dist/
+
+    - uses: actions/upload-artifact@v2
+      with:
+        name: game-executable-macos-arm64
+        path: dist/game_macos_arm64
+
+  build-windows:
+    runs-on: windows-latest
+    steps:
+    - uses: actions/checkout@v2
+    - uses: actions/setup-python@v2
+      with:
+        python-version: '3.9'
+
+    - name: Install dependencies
+      run: pip install -r requirements.txt pyinstaller
+
+    - name: Build for Windows
+      run: pyinstaller --onefile game.py --name game_windows.exe
+
+    - name: List files
+      run: ls dist
+
+    - uses: actions/upload-artifact@v2
+      with:
+        name: game-executable-windows
+        path: dist/game_windows.exe
