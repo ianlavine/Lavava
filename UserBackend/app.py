@@ -16,15 +16,15 @@ def token_required(f):
             token = request.headers['Authorization'].split(" ")[1]  # Assuming bearer token is used
         if not token:
             return jsonify({'message': 'Token is missing!'}), 401
-        
+
         try:
             data = jwt.decode(token, app.config['SECRET_KEY'], algorithms=["HS256"])
             current_user = data['user']
         except:
             return jsonify({'message': 'Token is invalid!'}), 401
-        
+
         return f(current_user, *args, **kwargs)
-    
+
     return decorated
 
 @app.route('/login', methods=['POST'])
@@ -35,24 +35,25 @@ def login():
         # Create a token
         token = jwt.encode({
             'user': username,
-            'exp': datetime.datetime.now(datetime.UTC) + datetime.timedelta(hours=72)  # Token expires in 24 hours
+            'exp': datetime.datetime.now(datetime.timezone.utc) + datetime.timedelta(hours=72)
+            # Token expires in 24 hours
         }, app.config['SECRET_KEY'], algorithm="HS256")
         return jsonify({"token": token}), 200
     else:
         return jsonify({"message": "Invalid credentials"}), 401
-    
+
 @app.route('/register', methods=['POST'])
 def register():
     data = request.json
     username = data.get('username')
     email = data.get('email')  # Email is received but not used in logic for simplicity
     password = data.get('password')  # Password is received but not used in logic
-    
+
     if username.lower() == 'default':
         return jsonify({"success": True, "message": "Registration successful"}), 200
     else:
         return jsonify({"success": False, "message": "Registration failed, username must be 'default'"}), 400
-    
+
 @app.route('/user_abilities', methods=['GET'])
 @token_required
 def get_home(current_user):
@@ -77,14 +78,14 @@ def get_profile(current_user):
         })
     else:
         return jsonify({"error": "User not found"}), 404
-    
+
 
 def user_decks(current_user):
     if current_user == "default":
         return [{"name": "Bridge", "count": 3}, {"name": "Freeze", "count": 2}, {"name": "Poison", "count": 1}, {"name": "Rage", "count": 1}]
     else:
         return []
-    
+
 @app.route('/abilities', methods=['GET'])
 def get_abilities():
     abilities = [
