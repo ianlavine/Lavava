@@ -1,0 +1,20 @@
+version: "3"
+
+services:
+  backend:
+    build: ./Backend
+    ports:
+      - "5553:5553"
+    networks:
+      - game_network1
+
+  userbackend:
+    build: ./UserBackend
+    ports:
+      - "5001:5001"
+    networks:
+      - game_network1
+
+networks:
+  game_network1:
+    driver: bridge
